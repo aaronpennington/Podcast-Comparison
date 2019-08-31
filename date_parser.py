@@ -84,7 +84,7 @@ fig = go.Figure(data=go.Heatmap(
 # Rainbow,Portland,Jet,Hot,Blackbody,Earth,Electric,Viridis,Cividis
 
 fig.update_layout(
-    title='Episode Releases',
+    title='Episode Release Dates',
     xaxis_nticks=3)
 
 fig.show()
