@@ -1,51 +1,37 @@
-import xml.etree.ElementTree as ET
 import pandas as pd
 import plotly.graph_objects as go
 import datetime
 import numpy as np
+import feedparser
+from collections import Counter
+
+# RSS LINKS:
+# http://nodumbqs.libsyn.com/rss
+# http://www.hellointernet.fm/podcast?format=rss
 
 # Initialize 2 lists of dates for the podcasts
 hi_dates = []
 ndq_dates = []
 
-# PARSE NDQ FEED
-tree = ET.parse('ndq_feed.xml')
-root = tree.getroot()
+ndq_url = "http://nodumbqs.libsyn.com/rss"
+hi_url = "http://www.hellointernet.fm/podcast?format=rss"
 
-for child in root:
-    for item in child:
-        for ep in item:
-            if (ep.tag == "pubDate"):
-                #print(ep.tag, ep.text)
-                timedate = pd.to_datetime(ep.text)
-                ndq_dates.append(timedate.date())
+ndq_response = feedparser.parse(ndq_url)
+hi_response = feedparser.parse(hi_url)
+
+# PARSE NDQ FEED
+for post in ndq_response.entries:
+    # print(post)
+    timedate = pd.to_datetime(post.published)
+    ndq_dates.append(timedate.date())
 
 print("*************************")
 
 # PARSE HI FEED
-tree2 = ET.parse('hi_feed.xml')
-root2 = tree2.getroot()
-
-for child in root2:
-    for item in child:
-        for ep in item:
-            if (ep.tag == "pubDate"):
-                #print(ep.tag, ep.text)
-                timedate = pd.to_datetime(ep.text)
-                hi_dates.append(timedate.date())
-
-ndq_file = open("ndq_dates.txt", "a")
-hi_file = open("hi_dates.txt", "a")
-
-# Write release dates for each episode of both podcasts to seperate files.
-# print("NDQ: ")
-for date in ndq_dates:
-    # print(date)
-    ndq_file.write(str(date))
-# print("HI: ")
-for date in hi_dates:
-    # print(date)
-    hi_file.write(str(date))
+for post in hi_response.entries:
+    # print(post)
+    timedate = pd.to_datetime(post.published)
+    hi_dates.append(timedate.date())
 
 # Plot a heatmap of release dates
 np.random.seed(1)
@@ -69,9 +55,6 @@ dates = start + np.arange(date_diff) * datetime.timedelta(days=1)
 
 # Distribute the frequencies of each day
 # z = np.random.poisson(size=(len(podcasts), len(dates)))
-
-
-from collections import Counter
 
 # pandas date range
 dates = pd.date_range(start, end, freq='D')
